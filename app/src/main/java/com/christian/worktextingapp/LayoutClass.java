@@ -69,9 +69,17 @@ public class LayoutClass extends ConstraintLayout {
         addView(myList);
 
         String[] items = {"one", "two", "three", "four"};
-        ArrayAdapter adapter = new ArrayAdapter<>(context, R.layout.list_row,items);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(context, R.layout.list_row,items);
         myList.setAdapter(adapter);
         myList.setOnItemClickListener(this::listClick);  //change the background to white of the ones selected
+
+        //making a new list that will sit beside the contacts list
+        ListView selectedList = new ListView(context);
+        selectedList.setId(View.generateViewId());
+        addView(selectedList);
+
+        //use the same adapter as the other list
+        selectedList.setAdapter(adapter);
 
         //add a button to send the text
         Button sendText = new Button(context);
@@ -89,14 +97,26 @@ public class LayoutClass extends ConstraintLayout {
         constraintSet.connect(welcomeSign.getId(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP);
         constraintSet.connect(welcomeSign.getId(), ConstraintSet.BOTTOM, myList.getId(),  ConstraintSet.TOP);
 
-        //set the constraints of the list
+        //set the constraints of the contacts list
         constraintSet.constrainWidth(myList.getId(), ConstraintSet.MATCH_CONSTRAINT);
         constraintSet.constrainWidth(myList.getId(), ConstraintSet.MATCH_CONSTRAINT);
 
         constraintSet.connect(myList.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START);
-        constraintSet.connect(myList.getId(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END);
-        constraintSet.connect(myList.getId(), ConstraintSet.TOP, welcomeSign.getId(), ConstraintSet.TOP);
+        constraintSet.connect(myList.getId(), ConstraintSet.END, selectedList.getId(), ConstraintSet.START);
+        constraintSet.connect(myList.getId(), ConstraintSet.TOP, welcomeSign.getId(), ConstraintSet.BOTTOM);
         constraintSet.connect(myList.getId(), ConstraintSet.BOTTOM, sendText.getId(), ConstraintSet.TOP);
+
+        //set the constraints of the selectedList
+        constraintSet.constrainWidth(selectedList.getId(), ConstraintSet.MATCH_CONSTRAINT);
+        constraintSet.constrainHeight(selectedList.getId(), ConstraintSet.MATCH_CONSTRAINT);
+
+        constraintSet.connect(selectedList.getId(), ConstraintSet.START, myList.getId(), ConstraintSet.END);
+        constraintSet.connect(selectedList.getId(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END);
+        constraintSet.connect(selectedList.getId(), ConstraintSet.TOP, myList.getId(), ConstraintSet.TOP);
+        constraintSet.connect(selectedList.getId(), ConstraintSet.BOTTOM, myList.getId(), ConstraintSet.BOTTOM);
+
+        //set the background of the listview
+        myList.setBackgroundColor(getResources().getColor(R.color.white));
 
         //set the constraints of the button
         constraintSet.constrainWidth(sendText.getId(), ConstraintSet.WRAP_CONTENT);
