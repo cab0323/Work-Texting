@@ -33,8 +33,9 @@ import java.util.List;
 
 public class LayoutClass extends ConstraintLayout implements ActivityCompat.OnRequestPermissionsResultCallback {
 
-    protected List<Integer> selectedPeopleNumber;
+
     protected List<String> selectedPeopleName;
+    private List<Integer> selectedPeopleNumber = new ArrayList<>();
 
     //testing the contactsid list and the phone number list
     private List<String> contactID = new ArrayList<>();
@@ -42,6 +43,9 @@ public class LayoutClass extends ConstraintLayout implements ActivityCompat.OnRe
 
     private List<String> contactsList;
     private ArrayAdapter<String> selectedAdapter;
+
+    //testing the clientClass list
+    private List<Client> clients;
 
     public LayoutClass(Context context, Activity act){
         super(context);
@@ -62,9 +66,9 @@ public class LayoutClass extends ConstraintLayout implements ActivityCompat.OnRe
         constraintSet.clone(this);
 
         //initialize anything that needs to be initialized
-        selectedPeopleNumber = new ArrayList<>();
         selectedPeopleName = new ArrayList<>();
         contactsList = new ArrayList<>();
+        clients = new ArrayList<>();
 
         //create the layout
         createTheLayout(context, constraintSet, act);
@@ -215,6 +219,9 @@ public class LayoutClass extends ConstraintLayout implements ActivityCompat.OnRe
                     while (phoneCursor.moveToNext()){
                         String number = phoneCursor.getString(phoneCursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NUMBER));
                         phoneNumber.add(number);
+
+                        Client client = new Client(Integer.parseInt(id), name, number);
+                        clients.add(client);
                     }
                     //always close the cursor to be safe
                     phoneCursor.close();
@@ -241,27 +248,31 @@ public class LayoutClass extends ConstraintLayout implements ActivityCompat.OnRe
         String personSelected = ((TextView)view).getText().toString();
 
         //toggle off and on depending on if it is already in the list of text to send or not
-        if(selectedPeopleName.contains(personSelected)){
+        if(selectedPeopleNumber.contains(i)){
             view.setBackgroundColor(getResources().getColor(R.color.white));
 
             /*
             Remove the user from the list. Always call notifyDataSetChanged to make sure the arrayAdapter is
-            up to date and constantly updates in real time.
+            up to date and constantly updates in real time. The selectedPeopleNumber will make sure the right
+            person is added and deleted. Each user is added to the clients list as a copy from the phones
+            contacts list. They are added in order they are in, the index they are in the listview corresponds
+            to the ID they have in the contacts list.
              */
-            selectedPeopleName.remove(personSelected);
+            selectedPeopleNumber.removeAll(Arrays.asList(i));
+            selectedPeopleName.remove(clients.get(i).getClientName());
             selectedAdapter.notifyDataSetChanged();
 
-            //this prints out the name and the i is the spot the name is in the list
-            Log.d("TESTING", "listClick: " + ((TextView)view).getText().toString() + i + " Removed");
         }
         else {
             //let the user know this person has been added to list already
             view.setBackgroundColor(getResources().getColor(R.color.yellow_selected));
 
             //add the person and update the adapter
-            selectedPeopleName.add(personSelected);
+            selectedPeopleNumber.add(i);
+            String n = clients.get(i).getClientName();
+            selectedPeopleName.add(n);
             selectedAdapter.notifyDataSetChanged();
-            Log.d("TESTING", "listClick: " + ((TextView)view).getText().toString() + i + " Added");
+
         }
     }
 
@@ -270,6 +281,7 @@ public class LayoutClass extends ConstraintLayout implements ActivityCompat.OnRe
         Log.d("TESTING", "buttonClick: " + contactsList);
         Log.d("TESTING", "buttonClick: number: " + phoneNumber);
         Log.d("TESTING", "buttonClick: id: " + contactID);
+        Log.d("TESTING", "buttonClick: clients: " + clients);
     }
 
 }
