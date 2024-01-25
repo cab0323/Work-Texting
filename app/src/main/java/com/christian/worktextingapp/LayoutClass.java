@@ -33,9 +33,12 @@ import java.util.List;
 
 public class LayoutClass extends ConstraintLayout implements ActivityCompat.OnRequestPermissionsResultCallback {
 
-    protected boolean clickedAlready = false;
     protected List<Integer> selectedPeopleNumber;
     protected List<String> selectedPeopleName;
+
+    //testing the contactsid list and the phone number list
+    private List<String> contactID = new ArrayList<>();
+    private List<String> phoneNumber = new ArrayList<>();
 
     private List<String> contactsList;
     private ArrayAdapter<String> selectedAdapter;
@@ -105,7 +108,7 @@ public class LayoutClass extends ConstraintLayout implements ActivityCompat.OnRe
         selectedList.setId(View.generateViewId());
         addView(selectedList);
 
-        //testing getting permission to read the contacts
+        //check if permission has already been granted to access the contacts "file"
         if(ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED){
             //permission has not yet been granted, ask for it
             ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.READ_CONTACTS}, 100);
@@ -114,10 +117,8 @@ public class LayoutClass extends ConstraintLayout implements ActivityCompat.OnRe
             //the permission has already been granted, go ahead and read the contacts
             loadContacts(context);
         }
-        //----------------
 
         //create the adapter for the selected list
-        //ArrayAdapter<String> selectedAdapter = new ArrayAdapter<>(context, R.layout.list_row, selectedPeopleNumber);
         selectedAdapter = new ArrayAdapter<>(context, R.layout.list_row, selectedPeopleName);
         selectedList.setAdapter(selectedAdapter);
 
@@ -179,17 +180,50 @@ public class LayoutClass extends ConstraintLayout implements ActivityCompat.OnRe
         //ill have to test if getContext gets the correct context
     }
 
+    /*
+    This method will read the contacts from the users phone and add them to a list which will then be used in
+    a listview to write the contacts to the screen.
+     */
     private void loadContacts(Context context){
-        ContentResolver resolver = context.getContentResolver();
-        Cursor cursor=resolver.query(ContactsContract.Contacts.CONTENT_URI,null,null,null,null);
 
+        /*
+        get the contactID, contactName, and if contact has number. Only these 3 things will be returned. This will be accomplished by creating
+        the String for the projection, that string will only have these 3 things in it. The projection only cares about the column, null means every
+        column should be returned, a specific string array will return what you specify. Selection is for the rows, null here as well means
+        every row should be returned.
+         */
+        String projection[] = {ContactsContract.Contacts._ID, ContactsContract.Contacts.DISPLAY_NAME, ContactsContract.Contacts.HAS_PHONE_NUMBER};
+        ContentResolver resolver = context.getContentResolver();
+        Cursor cursor = resolver.query(ContactsContract.Contacts.CONTENT_URI, projection, null,null, null);
+
+        //go through the returned data getting each name and id of the users in contacts
         if((cursor != null ? cursor.getCount() : 0) > 0){
-            while (cursor != null && cursor.moveToNext()){
+            while (cursor.moveToNext()){
                 String name = cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.Contacts.DISPLAY_NAME));
+                String id = cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.Contacts._ID));
+
                 contactsList.add(name);
+                contactID.add(id);
+
+                //now check if they have a phone number
+                if(cursor.getInt(cursor.getColumnIndexOrThrow(ContactsContract.Contacts.HAS_PHONE_NUMBER)) > 0){
+                    //they do so then get the number, to do that create a new query that only gets the number of the current person
+                    Cursor phoneCursor =
+                            resolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                                    null, ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?", new String[]{id}, null);
+
+                    while (phoneCursor.moveToNext()){
+                        String number = phoneCursor.getString(phoneCursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                        phoneNumber.add(number);
+                    }
+                    //always close the cursor to be safe
+                    phoneCursor.close();
+                }
+
             }
         }
 
+        //close the cursor
         if(cursor != null){
             cursor.close();
         }
@@ -211,14 +245,9 @@ public class LayoutClass extends ConstraintLayout implements ActivityCompat.OnRe
             view.setBackgroundColor(getResources().getColor(R.color.white));
 
             /*
-            remove the selected user, removeAll works as the users are added not by name but by position in the list
-            so there should be no worry of deleting incorrect user. EX. if two users named Mary are selected one top
-            of the list and the other in the middle of list they would not both be deleted if the following line of
-            code is run since the code seems them as two different users since they are referred to by their position
-            in the list not by their name.
+            Remove the user from the list. Always call notifyDataSetChanged to make sure the arrayAdapter is
+            up to date and constantly updates in real time.
              */
-            //selectedPeopleNumber.removeAll(Arrays.asList(i));
-
             selectedPeopleName.remove(personSelected);
             selectedAdapter.notifyDataSetChanged();
 
@@ -229,8 +258,8 @@ public class LayoutClass extends ConstraintLayout implements ActivityCompat.OnRe
             //let the user know this person has been added to list already
             view.setBackgroundColor(getResources().getColor(R.color.yellow_selected));
 
+            //add the person and update the adapter
             selectedPeopleName.add(personSelected);
-            //update the adapter
             selectedAdapter.notifyDataSetChanged();
             Log.d("TESTING", "listClick: " + ((TextView)view).getText().toString() + i + " Added");
         }
@@ -238,7 +267,9 @@ public class LayoutClass extends ConstraintLayout implements ActivityCompat.OnRe
 
     public void buttonClick(View view){
         Log.d("TESTING", "buttonClick: BUTTON WAS CLICKED");
-        Log.d("TESTING", "buttonClick: " + selectedPeopleName);
+        Log.d("TESTING", "buttonClick: " + contactsList);
+        Log.d("TESTING", "buttonClick: number: " + phoneNumber);
+        Log.d("TESTING", "buttonClick: id: " + contactID);
     }
 
 }
