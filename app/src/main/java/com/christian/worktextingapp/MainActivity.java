@@ -15,7 +15,7 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        LayoutClass myLayout = new LayoutClass(this);
+        LayoutClass myLayout = new LayoutClass(this, this);
         setContentView(myLayout);
     }
 }
