@@ -22,6 +22,7 @@ public class SendTextActivity extends Activity {
     private Button secondButton;
     private Button thirdButton;
     private Button fourthButton;
+    private boolean promptSelected = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,6 +84,7 @@ public class SendTextActivity extends Activity {
         String thirdButtonText = "This is the third button";
         String fourthButtonText = "This is the fourth button";
 
+        //the buttons that will have the prompts
         //create the buttons
         firstButton = new Button(this);
         secondButton = new Button(this);
@@ -110,6 +112,17 @@ public class SendTextActivity extends Activity {
         myConstraint.addView(secondButton);
         myConstraint.addView(thirdButton);
         myConstraint.addView(fourthButton);
+
+        //the button that will send the text
+        Button sendText = new Button(this);
+        sendText.setId(View.generateViewId());
+        sendText.setText("Send Text");
+        sendText.setOnClickListener(this::sendText);
+        myConstraint.addView(sendText);
+
+        constraintSet.constrainHeight(sendText.getId(), ConstraintSet.WRAP_CONTENT);
+        constraintSet.constrainWidth(sendText.getId(), ConstraintSet.WRAP_CONTENT);
+
 
         //here goes the textview that will show the user what they chose
         chosenText = new TextView(this);
@@ -154,7 +167,13 @@ public class SendTextActivity extends Activity {
         constraintSet.connect(chosenText.getId(), ConstraintSet.TOP, thirdButton.getId(), ConstraintSet.BOTTOM, 50);
         constraintSet.connect(chosenText.getId(), ConstraintSet.START, thirdButton.getId(), ConstraintSet.START, 50);
         constraintSet.connect(chosenText.getId(), ConstraintSet.END, fourthButton.getId(), ConstraintSet.END);
-        constraintSet.connect(chosenText.getId(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM);
+        constraintSet.connect(chosenText.getId(), ConstraintSet.BOTTOM, sendText.getId(), ConstraintSet.TOP);
+
+        //the send text button
+        constraintSet.connect(sendText.getId(), ConstraintSet.TOP, chosenText.getId(), ConstraintSet.BOTTOM);
+        constraintSet.connect(sendText.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START);
+        constraintSet.connect(sendText.getId(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END);
+        constraintSet.connect(sendText.getId(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM);
 
 
     }
@@ -162,6 +181,11 @@ public class SendTextActivity extends Activity {
     private void textPromptClick(View view){
         //depending on what button was clicked set the textview to that button's text
 
+        //once a selection is made the selections cannot be unmade, one promtp has to be selected. Last
+        //selected prompt is the one sent. Once send button is clicked.
+        promptSelected = true;
+
+        //check which one was selected
         if(view.getId() == firstButton.getId()){
             chosenText.setText(firstButton.getText());
             Log.d("TESTING", "textPromptClick: FIRST CLICKED");
@@ -170,4 +194,20 @@ public class SendTextActivity extends Activity {
             Log.d("TESTING", "textPromptClick: SECOND CLICKED");
         }
     }
+
+    /*
+    This is the onClickListener for the send text button. When clicked it will send the text based on the prompt that was clicked.
+    If no prompt is clicked it will let the user know to make a selection.
+     */
+    private void sendText(View view){
+        //first check if the user did make a selection
+        if(promptSelected){
+            Log.d("TESTING", "sendText: User did select");
+        }
+        else {
+            Log.d("TESTING", "sendText: no selection made");
+        }
+
+    }
+
 }
