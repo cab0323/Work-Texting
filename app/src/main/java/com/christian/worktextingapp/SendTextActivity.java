@@ -7,12 +7,15 @@ import androidx.core.content.ContextCompat;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.TextView;
 
 public class SendTextActivity extends Activity {
@@ -23,6 +26,7 @@ public class SendTextActivity extends Activity {
     private Button thirdButton;
     private Button fourthButton;
     private boolean promptSelected = false;
+    private boolean checkBoxClicked = false; //will only change if the user clicks the box
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -123,6 +127,18 @@ public class SendTextActivity extends Activity {
         constraintSet.constrainHeight(sendText.getId(), ConstraintSet.WRAP_CONTENT);
         constraintSet.constrainWidth(sendText.getId(), ConstraintSet.WRAP_CONTENT);
 
+        //add the checkbox that needs to be clicked before the text will be sent
+        CheckBox verifyCheckbox = new CheckBox(this);
+        verifyCheckbox.setId(View.generateViewId());
+        verifyCheckbox.setText("Check here before clicking button");
+        verifyCheckbox.setTextColor(ContextCompat.getColor(this, R.color.black));
+        verifyCheckbox.setBackgroundColor(ContextCompat.getColor(this, R.color.white));
+        verifyCheckbox.setOnClickListener(this::checkBoxListener);
+        myConstraint.addView(verifyCheckbox);
+
+        constraintSet.constrainWidth(verifyCheckbox.getId(), ConstraintSet.WRAP_CONTENT);
+        constraintSet.constrainHeight(verifyCheckbox.getId(), ConstraintSet.WRAP_CONTENT);
+
 
         //here goes the textview that will show the user what they chose
         chosenText = new TextView(this);
@@ -173,11 +189,21 @@ public class SendTextActivity extends Activity {
         constraintSet.connect(sendText.getId(), ConstraintSet.TOP, chosenText.getId(), ConstraintSet.BOTTOM);
         constraintSet.connect(sendText.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START);
         constraintSet.connect(sendText.getId(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END);
-        constraintSet.connect(sendText.getId(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM);
+        constraintSet.connect(sendText.getId(), ConstraintSet.BOTTOM, verifyCheckbox.getId(), ConstraintSet.TOP, 20);
+
+        //the verify checkbox
+        constraintSet.connect(verifyCheckbox.getId(), ConstraintSet.TOP, sendText.getId(), ConstraintSet.BOTTOM);
+        constraintSet.connect(verifyCheckbox.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START);
+        constraintSet.connect(verifyCheckbox.getId(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END);
+        constraintSet.connect(verifyCheckbox.getId(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM, 50);
 
 
     }
 
+    /*
+    This method will check which prompt was clicked and show the user that prompt was clicked by setting the textview to
+    that prompt.
+     */
     private void textPromptClick(View view){
         //depending on what button was clicked set the textview to that button's text
 
@@ -200,14 +226,24 @@ public class SendTextActivity extends Activity {
     If no prompt is clicked it will let the user know to make a selection.
      */
     private void sendText(View view){
-        //first check if the user did make a selection
-        if(promptSelected){
-            Log.d("TESTING", "sendText: User did select");
+        //first check if the user did make a selection and checked the checkbox
+        if(promptSelected && checkBoxClicked){
+            Log.d("TESTING", "sendText: sending text");
         }
         else {
-            Log.d("TESTING", "sendText: no selection made");
+            //check what is missing,
+            if (!promptSelected) {
+                //no prompt was selected
+                chosenText.setText("MAKE A SELECTION BEFORE SENDING");
+            }
         }
 
+    }
+
+    //the click listener for the checkbox
+    private void checkBoxListener(View view){
+        //flip to the opposite, to make sure if the user clicks and then un clicks it does not stay true
+        checkBoxClicked = !checkBoxClicked;
     }
 
 }
