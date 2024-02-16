@@ -27,12 +27,18 @@ public class SendTextActivity extends Activity {
     private Button fourthButton;
     private boolean promptSelected = false;
     private boolean checkBoxClicked = false; //will only change if the user clicks the box
+
+    //here are the predetermined prompts, I put them here makes it easier to change
+    //the strings that will go in the buttons
+    String firstButtonText = "Hello i am testing the firstButton button with a long text let's see if it works";
+    String secondButtonText = "Hello i am testing the secondButton button with a long text too.";
+    String thirdButtonText = "This is the third button";
+    String fourthButtonText = "This is the fourth button";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(myLayout());
-
-
     }
 
 
@@ -82,11 +88,6 @@ public class SendTextActivity extends Activity {
         constraintSet.constrainHeight(heading.getId(), ConstraintSet.WRAP_CONTENT);
         constraintSet.constrainWidth(heading.getId(), ConstraintSet.MATCH_CONSTRAINT);
 
-        //the strings that will go in the buttons
-        String firstButtonText = "Hello i am testing the firstButton button with a long text let's see if it works";
-        String secondButtonText = "Hello i am testing the secondButton button with a long text too.";
-        String thirdButtonText = "This is the third button";
-        String fourthButtonText = "This is the fourth button";
 
         //the buttons that will have the prompts
         //create the buttons
@@ -110,6 +111,8 @@ public class SendTextActivity extends Activity {
         //add the onclick listeners
         firstButton.setOnClickListener(this::textPromptClick);
         secondButton.setOnClickListener(this::textPromptClick);
+        thirdButton.setOnClickListener(this::textPromptClick);
+        fourthButton.setOnClickListener(this::textPromptClick);
 
         //add the buttons to the layout
         myConstraint.addView(firstButton);
@@ -207,17 +210,19 @@ public class SendTextActivity extends Activity {
     private void textPromptClick(View view){
         //depending on what button was clicked set the textview to that button's text
 
-        //once a selection is made the selections cannot be unmade, one promtp has to be selected. Last
+        //once a selection is made the selections cannot be unmade, one prompt has to be selected. Last
         //selected prompt is the one sent. Once send button is clicked.
         promptSelected = true;
 
         //check which one was selected
         if(view.getId() == firstButton.getId()){
             chosenText.setText(firstButton.getText());
-            Log.d("TESTING", "textPromptClick: FIRST CLICKED");
         } else if (view.getId() == secondButton.getId()) {
-            chosenText.setText("SECOND");
-            Log.d("TESTING", "textPromptClick: SECOND CLICKED");
+            chosenText.setText(secondButton.getText());
+        } else if (view.getId() == thirdButton.getId()) {
+            chosenText.setText(thirdButton.getText());
+        } else if (view.getId() == fourthButton.getId()) {
+            chosenText.setText(fourthButton.getText());
         }
     }
 
