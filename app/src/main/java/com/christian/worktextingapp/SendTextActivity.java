@@ -6,6 +6,8 @@ import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.content.ContextCompat;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
@@ -17,6 +19,11 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.TextView;
+
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
+
+import org.w3c.dom.Text;
 
 public class SendTextActivity extends Activity {
 
@@ -241,6 +248,39 @@ public class SendTextActivity extends Activity {
                 //no prompt was selected
                 chosenText.setText("MAKE A SELECTION BEFORE SENDING");
             }
+            else if (!checkBoxClicked) //ide thinks this is always true but that is not the case, ignore red underlined text
+            {
+                /* snackbar won't work because of my theme, it cannot inflate button unless app is
+                extending appcombat, im extending activity so it won't work. I also do not want to change
+                theme. So will try to use dialog instead. I will not add buttons to it, it will just
+                show a message and when the user clicks anywhere on the screen away from the dialog
+                it will disappear.
+                 */
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setMessage("Click Checkbox before sending message");
+                builder.setTitle("Checkbox");
+
+                //create it
+                AlertDialog alert = builder.create();
+                alert.show();
+
+                /*
+                another idea: when this is if is called it means the user has not yet clicked the checkbox. Have it
+                change background color or add a border to it to make it easier to see.
+                 */
+            }
+            else if (!checkBoxClicked && !promptSelected){
+                //neither were selected, tell user to make a selection
+                //will alert user using a dialog box
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setMessage("Please select a prompt and click the checkbox before moving on");
+                builder.setTitle("Make selections");
+
+                //create and show it
+                AlertDialog bothAlert = builder.create();
+                bothAlert.show();
+            }
+
         }
 
     }
@@ -249,6 +289,8 @@ public class SendTextActivity extends Activity {
     private void checkBoxListener(View view){
         //flip to the opposite, to make sure if the user clicks and then un clicks it does not stay true
         checkBoxClicked = !checkBoxClicked;
+        Log.d("TESTING", "checkBoxListener: checkBoxClicked is now " + checkBoxClicked);
+
     }
 
 }
