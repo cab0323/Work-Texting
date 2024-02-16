@@ -19,6 +19,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
@@ -241,6 +242,9 @@ public class SendTextActivity extends Activity {
         //first check if the user did make a selection and checked the checkbox
         if(promptSelected && checkBoxClicked){
             Log.d("TESTING", "sendText: sending text");
+            String textConfirmationToast = "Sending text!!";
+            Toast confirmation = Toast.makeText(this, textConfirmationToast, Toast.LENGTH_SHORT);
+            confirmation.show();
         }
         else {
             //check what is missing,
