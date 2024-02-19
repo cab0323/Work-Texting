@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Work Texting App</string>
     <string name="checkboxSnack">Click Checkbox before sending</string>
+    <string name="makeSelecionB4Sending">Make Selection before sending</string>
 </resources>

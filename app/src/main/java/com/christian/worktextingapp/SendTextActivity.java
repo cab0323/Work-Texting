@@ -27,6 +27,8 @@ import com.google.android.material.snackbar.Snackbar;
 
 import org.w3c.dom.Text;
 
+import java.util.ArrayList;
+
 public class SendTextActivity extends Activity {
 
     private TextView chosenText;
@@ -36,6 +38,7 @@ public class SendTextActivity extends Activity {
     private Button fourthButton;
     private boolean promptSelected = false;
     private boolean checkBoxClicked = false; //will only change if the user clicks the box
+    private ArrayList<Client> selectedClients;
 
     //here are the predetermined prompts, I put them here makes it easier to change
     //the strings that will go in the buttons
@@ -48,6 +51,11 @@ public class SendTextActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(myLayout());
+
+        selectedClients = (ArrayList<Client>) getIntent().getSerializableExtra("selectedPeople");
+        for(int i = 0; i < selectedClients.size(); i++){
+            Log.d("TESTING", "onCreate: selectedClients: " + selectedClients.get(i).getClientName());
+        }
     }
 
 
@@ -265,7 +273,7 @@ public class SendTextActivity extends Activity {
             //check what is missing,
             if (!promptSelected) {
                 //no prompt was selected
-                chosenText.setText("MAKE A SELECTION BEFORE SENDING");
+                chosenText.setText(R.string.makeSelecionB4Sending);
             }
             else if (!checkBoxClicked) //ide thinks this is always true but that is not the case, ignore red underlined text
             {

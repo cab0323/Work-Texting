@@ -1,6 +1,10 @@
 package com.christian.worktextingapp;
 
-public class Client {
+import android.os.Parcelable;
+
+import java.io.Serializable;
+
+public class Client implements Serializable {
 
     private int clientID;
     private String clientName;
@@ -8,7 +12,7 @@ public class Client {
 
     /*
     this class is where the information of each client is stored. Will add more methods as time comes for example a method
-    to check when you last did this clients maintanence, ect. For now just does basic data storage of the clients
+    to check when you last did this clients maintenance, ect. For now just does basic data storage of the clients
     id, name, number
      */
     public Client(int clientID, String clientName, String clientPhoneNumber){

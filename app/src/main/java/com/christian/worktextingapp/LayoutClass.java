@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.util.Log;
 import android.util.TypedValue;
@@ -28,6 +29,7 @@ import androidx.core.content.ContextCompat;
 
 import org.w3c.dom.Text;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -48,6 +50,7 @@ public class LayoutClass extends ConstraintLayout implements ActivityCompat.OnRe
 
     //testing the clientClass list
     private List<Client> clients;
+    private List<Client> selectedClients;
 
     public LayoutClass(Context context, Activity act){
         super(context);
@@ -72,6 +75,7 @@ public class LayoutClass extends ConstraintLayout implements ActivityCompat.OnRe
         selectedPeopleName = new ArrayList<>();
         contactsList = new ArrayList<>();
         clients = new ArrayList<>();
+        selectedClients = new ArrayList<>();
 
         //create the layout
         createTheLayout(context, constraintSet, act);
@@ -133,7 +137,7 @@ public class LayoutClass extends ConstraintLayout implements ActivityCompat.OnRe
         Button sendText = new Button(context);
         sendText.setId(View.generateViewId());
         sendText.setText("Send Text");
-        sendText.setOnClickListener(this::buttonClick); //set the button onClickListener
+        sendText.setOnClickListener(this::sendTextButton); //set the button onClickListener
         addView(sendText);
 
         //set the constraints of the welcome sign
@@ -279,13 +283,33 @@ public class LayoutClass extends ConstraintLayout implements ActivityCompat.OnRe
         }
     }
 
-    public void buttonClick(View view){
-        Log.d("TESTING", "buttonClick: BUTTON WAS CLICKED");
-        Log.d("TESTING", "buttonClick: " + contactsList);
-        Log.d("TESTING", "buttonClick: number: " + phoneNumber);
-        Log.d("TESTING", "buttonClick: id: " + contactID);
+    public void sendTextButton(View view){
+        Log.d("TESTING", "sendTextButton: BUTTON WAS CLICKED");
+        Log.d("TESTING", "sendTextButton: " + contactsList);
+        Log.d("TESTING", "sendTextButton: number: " + phoneNumber);
+        Log.d("TESTING", "sendTextButton: id: " + contactID);
+        Log.d("TESTING", "sendTextButton: selectedNumber" + selectedPeopleNumber);
         Log.d("TESTING", "buttonClick: clients: " + clients);
+
+        /*
+        This will add the client class to the list of selected clients. This way it will be easier to pass the information as an array of client type
+        to the next activity. This is possible since the list holding the user selected has the users in order, starting at index zero. The clients
+        are also in that exact same order so it works.
+         */
+        for( int i = 0; i < selectedPeopleNumber.size(); i++){
+            //add the corresponding client to the list
+            selectedClients.add(clients.get(selectedPeopleNumber.get(i)));
+        }
+
+        for(int i = 0; i < selectedClients.size(); i++){
+            Log.d("TESTING", "sendTextButton: selectedClients: " + selectedClients.get(i).getClientName());
+        }
+
+        Bundle arrayBundle = new Bundle();
+
         Intent goToSendText = new Intent(myContext, SendTextActivity.class);
+        ArrayList<Client> selectedClientsArray = new ArrayList<>(selectedClients);
+        goToSendText.putExtra("selectedPeople", selectedClientsArray);
         myContext.startActivity(goToSendText);
     }
 
