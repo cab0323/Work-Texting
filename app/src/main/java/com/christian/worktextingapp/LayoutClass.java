@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.provider.ContactsContract;
@@ -43,12 +44,14 @@ public class LayoutClass extends ConstraintLayout implements ActivityCompat.OnRe
 
     private List<String> contactsList;
     private ArrayAdapter<String> selectedAdapter;
+    private Context myContext;
 
     //testing the clientClass list
     private List<Client> clients;
 
     public LayoutClass(Context context, Activity act){
         super(context);
+        myContext = context;
 
         //first set the attributes for the constraint class
         setId(View.generateViewId());
@@ -282,6 +285,8 @@ public class LayoutClass extends ConstraintLayout implements ActivityCompat.OnRe
         Log.d("TESTING", "buttonClick: number: " + phoneNumber);
         Log.d("TESTING", "buttonClick: id: " + contactID);
         Log.d("TESTING", "buttonClick: clients: " + clients);
+        Intent goToSendText = new Intent(myContext, SendTextActivity.class);
+        myContext.startActivity(goToSendText);
     }
 
 }

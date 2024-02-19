@@ -9,6 +9,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -85,6 +86,16 @@ public class SendTextActivity extends Activity {
 
     private void addToLayout(ConstraintSet constraintSet, ConstraintLayout myConstraint){
         //i may add a guideline here later
+        //add the back button at the top of the screen, in the middle
+        Button backButton = new Button(this);
+        backButton.setText("Go Back");
+        backButton.setId(View.generateViewId());
+        backButton.setOnClickListener(this::goPreviousPage);
+        constraintSet.constrainWidth(backButton.getId(), ConstraintSet.WRAP_CONTENT);
+        constraintSet.constrainHeight(backButton.getId(), ConstraintSet.WRAP_CONTENT);
+        myConstraint.addView(backButton);
+        //add a home button beside the back button eventually
+
         //add the heading
         TextView heading = new TextView(this);
         heading.setId(View.generateViewId());
@@ -96,9 +107,7 @@ public class SendTextActivity extends Activity {
         constraintSet.constrainHeight(heading.getId(), ConstraintSet.WRAP_CONTENT);
         constraintSet.constrainWidth(heading.getId(), ConstraintSet.MATCH_CONSTRAINT);
 
-
-        //the buttons that will have the prompts
-        //create the buttons
+        //create the buttons that will have the prompts
         firstButton = new Button(this);
         secondButton = new Button(this);
         thirdButton = new Button(this);
@@ -160,8 +169,14 @@ public class SendTextActivity extends Activity {
         constraintSet.constrainHeight(chosenText.getId(), ConstraintSet.MATCH_CONSTRAINT);
         constraintSet.constrainWidth(chosenText.getId(), ConstraintSet.WRAP_CONTENT);
 
+        //constraint the back button
+        constraintSet.connect(backButton.getId(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP);
+        constraintSet.connect(backButton.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, constraintSet.START);
+        constraintSet.connect(backButton.getId(), ConstraintSet.END, ConstraintSet.PARENT_ID, constraintSet.END);
+        constraintSet.connect(backButton.getId(), ConstraintSet.BOTTOM, heading.getId(), ConstraintSet.TOP);
+
         //constraint the heading
-        constraintSet.connect(heading.getId(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP);
+        constraintSet.connect(heading.getId(), ConstraintSet.TOP, backButton.getId(), ConstraintSet.BOTTOM, 20);
         constraintSet.connect(heading.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START);
         constraintSet.connect(heading.getId(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END);
         constraintSet.connect(heading.getId(), ConstraintSet.BOTTOM, firstButton.getId(), ConstraintSet.TOP);
@@ -297,4 +312,10 @@ public class SendTextActivity extends Activity {
 
     }
 
+    //listener to go back to the previous page
+    private void goPreviousPage(View view){
+        Log.d("TESTING", "goPreviousPage: Going back ");
+        Intent goBack = new Intent(SendTextActivity.this, MainActivity.class);
+        startActivity(goBack);
+    }
 }
