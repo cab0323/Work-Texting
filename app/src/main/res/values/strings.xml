@@ -2,4 +2,16 @@
     <string name="app_name">Work Texting App</string>
     <string name="checkboxSnack">Click Checkbox before sending</string>
     <string name="makeSelecionB4Sending">Make Selection before sending</string>
+    <string name="alertDialogMessageFailed">Message Failed. Try again.</string>
+    <string name="alertDialogMessageFailedTitle">Message Error</string>
+    <string name="firstButtonPrompt">Hello %1$s, you clicked the first button</string>
+    <string name="secondButtonPrompt">This is second button clicked by %1$s</string>
+    <string name="thirdButtonPrompt">%1$s, clicked third button</string>
+    <string name="fourthButtonPrompt">This is fourth button %1$s</string>
+    <string name="buttonPromptsPlaceholder">CLIENT-NAME</string>
+    <string name="goBackButton">Go back!</string>
+    <string name="Heading">Choose the text Prompt</string>
+    <string name="sendText">Send Text</string>
+    <string name="checkboxText">Check here before clicking button</string>
+    <string name="sendTextToast">Sending the text!!</string>
 </resources>

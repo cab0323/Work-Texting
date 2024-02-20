@@ -1,18 +1,22 @@
 package com.christian.worktextingapp;
 
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.telephony.SmsManager;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
@@ -29,7 +33,7 @@ import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
-public class SendTextActivity extends Activity {
+public class SendTextActivity extends Activity implements ActivityCompat.OnRequestPermissionsResultCallback{
 
     private TextView chosenText;
     private Button firstButton;
@@ -39,13 +43,9 @@ public class SendTextActivity extends Activity {
     private boolean promptSelected = false;
     private boolean checkBoxClicked = false; //will only change if the user clicks the box
     private ArrayList<Client> selectedClients;
+    private static final int SEND_SMS_PERMISSION = 100;
+    private int promptNumberSelected = 0; //used to keep track of which prompt was selected
 
-    //here are the predetermined prompts, I put them here makes it easier to change
-    //the strings that will go in the buttons
-    String firstButtonText = "Hello i am testing the firstButton button with a long text let's see if it works";
-    String secondButtonText = "Hello i am testing the secondButton button with a long text too.";
-    String thirdButtonText = "This is the third button";
-    String fourthButtonText = "This is the fourth button";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,9 +53,9 @@ public class SendTextActivity extends Activity {
         setContentView(myLayout());
 
         selectedClients = (ArrayList<Client>) getIntent().getSerializableExtra("selectedPeople");
-        for(int i = 0; i < selectedClients.size(); i++){
+/*        for(int i = 0; i < selectedClients.size(); i++){
             Log.d("TESTING", "onCreate: selectedClients: " + selectedClients.get(i).getClientName());
-        }
+        }*/
     }
 
 
@@ -96,7 +96,7 @@ public class SendTextActivity extends Activity {
         //i may add a guideline here later
         //add the back button at the top of the screen, in the middle
         Button backButton = new Button(this);
-        backButton.setText("Go Back");
+        backButton.setText(R.string.goBackButton);
         backButton.setId(View.generateViewId());
         backButton.setOnClickListener(this::goPreviousPage);
         constraintSet.constrainWidth(backButton.getId(), ConstraintSet.WRAP_CONTENT);
@@ -107,7 +107,7 @@ public class SendTextActivity extends Activity {
         //add the heading
         TextView heading = new TextView(this);
         heading.setId(View.generateViewId());
-        heading.setText("Choose the text message prompt");
+        heading.setText(R.string.Heading);
         heading.setTextColor(ContextCompat.getColor(this, R.color.black));
         heading.setTextSize(TypedValue.COMPLEX_UNIT_SP, 25);
         myConstraint.addView(heading);
@@ -128,10 +128,10 @@ public class SendTextActivity extends Activity {
         fourthButton.setId(View.generateViewId());
 
         //set the button texts
-        firstButton.setText(firstButtonText);
-        secondButton.setText(secondButtonText);
-        thirdButton.setText(thirdButtonText);
-        fourthButton.setText(fourthButtonText);
+        firstButton.setText(String.format(getResources().getString(R.string.firstButtonPrompt), getResources().getString(R.string.buttonPromptsPlaceholder)));
+        secondButton.setText(String.format(getResources().getString(R.string.secondButtonPrompt), getResources().getString(R.string.buttonPromptsPlaceholder)));
+        thirdButton.setText(String.format(getResources().getString(R.string.thirdButtonPrompt), getResources().getString(R.string.buttonPromptsPlaceholder)));
+        fourthButton.setText(String.format(getResources().getString(R.string.fourthButtonPrompt), getResources().getString(R.string.buttonPromptsPlaceholder)));
 
         //add the onclick listeners
         firstButton.setOnClickListener(this::textPromptClick);
@@ -148,7 +148,7 @@ public class SendTextActivity extends Activity {
         //the button that will send the text
         Button sendText = new Button(this);
         sendText.setId(View.generateViewId());
-        sendText.setText("Send Text");
+        sendText.setText(R.string.sendText);
         sendText.setOnClickListener(this::sendText);
         myConstraint.addView(sendText);
 
@@ -158,7 +158,7 @@ public class SendTextActivity extends Activity {
         //add the checkbox that needs to be clicked before the text will be sent
         CheckBox verifyCheckbox = new CheckBox(this);
         verifyCheckbox.setId(View.generateViewId());
-        verifyCheckbox.setText("Check here before clicking button");
+        verifyCheckbox.setText(R.string.checkboxText);
         verifyCheckbox.setTextColor(ContextCompat.getColor(this, R.color.black));
         verifyCheckbox.setBackgroundColor(ContextCompat.getColor(this, R.color.white));
         verifyCheckbox.setOnClickListener(this::checkBoxListener);
@@ -248,12 +248,16 @@ public class SendTextActivity extends Activity {
         //check which one was selected
         if(view.getId() == firstButton.getId()){
             chosenText.setText(firstButton.getText());
+            promptNumberSelected = 1;
         } else if (view.getId() == secondButton.getId()) {
             chosenText.setText(secondButton.getText());
+            promptNumberSelected = 2;
         } else if (view.getId() == thirdButton.getId()) {
             chosenText.setText(thirdButton.getText());
+            promptNumberSelected = 3;
         } else if (view.getId() == fourthButton.getId()) {
             chosenText.setText(fourthButton.getText());
+            promptNumberSelected = 4;
         }
     }
 
@@ -264,10 +268,13 @@ public class SendTextActivity extends Activity {
     private void sendText(View view){
         //first check if the user did make a selection and checked the checkbox
         if(promptSelected && checkBoxClicked){
-            Log.d("TESTING", "sendText: sending text");
-            String textConfirmationToast = "Sending text!!";
-            Toast confirmation = Toast.makeText(this, textConfirmationToast, Toast.LENGTH_SHORT);
-            confirmation.show();
+            //going to send the text, check for the permissions first
+            if(ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SEND_SMS}, SEND_SMS_PERMISSION);
+            }
+            else {
+                sendTextMessage();
+            }
         }
         else {
             //check what is missing,
@@ -310,6 +317,75 @@ public class SendTextActivity extends Activity {
 
         }
 
+    }
+
+    private void sendTextMessage(){
+        SmsManager sManager = SmsManager.getDefault();
+        String message;
+        Toast confirmation = Toast.makeText(this, getResources().getString(R.string.sendTextToast), Toast.LENGTH_SHORT);
+
+        /*
+        For now the best way I could come up with is to use a switch statement. That will check which button was clicked and format the text
+        from that button. Format it to be specific to each clients name(the clients selected to get the text message. Trying to figure out a
+        way to not have to do the for loop in each switch statement.
+         */
+        switch (promptNumberSelected) {
+            case 1:
+                for(int i = 0; i < selectedClients.size(); i++){
+                    message = String.format(getResources().getString(R.string.firstButtonPrompt), selectedClients.get(i).getClientName());
+                    sManager.sendTextMessage(selectedClients.get(i).getClientPhoneNumber(), null, message, null, null);
+                    confirmation.show();
+                    Log.d("TESTING", "sendTextMessage: " + message + promptNumberSelected);
+                }
+                break;
+
+            case 2:
+                for(int i = 0; i < selectedClients.size(); i++){
+                    message = String.format(getResources().getString(R.string.secondButtonPrompt), selectedClients.get(i).getClientName());
+                    sManager.sendTextMessage(selectedClients.get(i).getClientPhoneNumber(), null, message, null, null);
+                    confirmation.show();
+                    Log.d("TESTING", "sendTextMessage: " + message + promptNumberSelected);
+                }
+                break;
+
+            case 3:
+                for(int i = 0; i < selectedClients.size(); i++){
+                    message = String.format(getResources().getString(R.string.thirdButtonPrompt), selectedClients.get(i).getClientName());
+                    sManager.sendTextMessage(selectedClients.get(i).getClientPhoneNumber(), null, message, null, null);
+                    confirmation.show();
+                    Log.d("TESTING", "sendTextMessage: " + message + promptNumberSelected);
+                }
+                break;
+
+            case 4:
+                for(int i = 0; i < selectedClients.size(); i++){
+                    message = String.format(getResources().getString(R.string.fourthButtonPrompt), selectedClients.get(i).getClientName());
+                    sManager.sendTextMessage(selectedClients.get(i).getClientPhoneNumber(), null, message, null, null);
+                    confirmation.show();
+                    Log.d("TESTING", "sendTextMessage: " + message + promptNumberSelected);
+                }
+                break;
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults){
+        switch (requestCode) {
+            case SEND_SMS_PERMISSION:
+                if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                    Log.d("TESTING", "onRequestPermissionResult: permissions granted");
+                    sendTextMessage();
+                }
+                else {
+                    AlertDialog.Builder messageFailBuilder = new AlertDialog.Builder(this);
+                    messageFailBuilder.setMessage(R.string.alertDialogMessageFailed);
+                    messageFailBuilder.setTitle(R.string.alertDialogMessageFailedTitle);
+
+                    //create the dialog alert
+                    AlertDialog messageFailedAlert = messageFailBuilder.create();
+                    messageFailedAlert.show();
+                }
+        }
     }
 
     //the click listener for the checkbox
