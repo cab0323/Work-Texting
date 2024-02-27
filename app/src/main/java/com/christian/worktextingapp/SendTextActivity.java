@@ -41,6 +41,9 @@ public class SendTextActivity extends Activity implements ActivityCompat.OnReque
     private Button secondButton;
     private Button thirdButton;
     private Button fourthButton;
+
+    //testing the "crate your own prompt" button
+    private Button createYourOwnButton;
     private boolean promptSelected = false;
     private boolean checkBoxClicked = false; //will only change if the user clicks the box
     private ArrayList<Client> selectedClients;
@@ -122,7 +125,7 @@ public class SendTextActivity extends Activity implements ActivityCompat.OnReque
         constraintSet.constrainHeight(heading.getId(), ConstraintSet.WRAP_CONTENT);
         constraintSet.constrainWidth(heading.getId(), ConstraintSet.MATCH_CONSTRAINT);
 
-        //test the new button's backgrounds, drawables
+        //set the drawable that will be the default background for the buttons
         Drawable defaultbutton = ContextCompat.getDrawable(getApplicationContext(), R.drawable.prompt_button_default);
 
         //create the buttons that will have the prompts
@@ -131,9 +134,17 @@ public class SendTextActivity extends Activity implements ActivityCompat.OnReque
         thirdButton = new Button(this);
         fourthButton = new Button(this);
 
+        //this button will allow user to create their own prompt
+        createYourOwnButton = new Button(this);
+
         //setting the drawable background of the buttons
         firstButton.setBackground(defaultbutton);
         secondButton.setBackground(defaultbutton);
+        thirdButton.setBackground(defaultbutton);
+        fourthButton.setBackground(defaultbutton);
+
+        //testing
+        createYourOwnButton.setBackground(defaultbutton);
 
         //set the ID's of the buttons
         firstButton.setId(View.generateViewId());
@@ -141,11 +152,17 @@ public class SendTextActivity extends Activity implements ActivityCompat.OnReque
         thirdButton.setId(View.generateViewId());
         fourthButton.setId(View.generateViewId());
 
+        //testing
+        createYourOwnButton.setId(View.generateViewId());
+
         //set the button texts
         firstButton.setText(String.format(getResources().getString(R.string.firstButtonPrompt), getResources().getString(R.string.buttonPromptsPlaceholder)));
         secondButton.setText(String.format(getResources().getString(R.string.secondButtonPrompt), getResources().getString(R.string.buttonPromptsPlaceholder)));
         thirdButton.setText(String.format(getResources().getString(R.string.thirdButtonPrompt), getResources().getString(R.string.buttonPromptsPlaceholder)));
         fourthButton.setText(String.format(getResources().getString(R.string.fourthButtonPrompt), getResources().getString(R.string.buttonPromptsPlaceholder)));
+
+        //testing
+        createYourOwnButton.setText("Make your own prompt");
 
         //add the onclick listeners
         firstButton.setOnClickListener(this::textPromptClick);
@@ -153,11 +170,17 @@ public class SendTextActivity extends Activity implements ActivityCompat.OnReque
         thirdButton.setOnClickListener(this::textPromptClick);
         fourthButton.setOnClickListener(this::textPromptClick);
 
+        //testing
+        createYourOwnButton.setOnClickListener(this::textPromptClick);
+
         //add the buttons to the layout
         myConstraint.addView(firstButton);
         myConstraint.addView(secondButton);
         myConstraint.addView(thirdButton);
         myConstraint.addView(fourthButton);
+
+        //testing
+        myConstraint.addView(createYourOwnButton);
 
         //the button that will send the text
         Button sendText = new Button(this);
@@ -205,36 +228,42 @@ public class SendTextActivity extends Activity implements ActivityCompat.OnReque
 
         //constraint the firstButton button
         constraintSet.connect(firstButton.getId(), ConstraintSet.TOP, heading.getId(), ConstraintSet.BOTTOM);
-        constraintSet.connect(firstButton.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START);
+        constraintSet.connect(firstButton.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 30);
         constraintSet.connect(firstButton.getId(), ConstraintSet.END, secondButton.getId(), ConstraintSet.START, 30);
         constraintSet.connect(firstButton.getId(), ConstraintSet.BOTTOM, thirdButton.getId(), ConstraintSet.TOP);
 
         //constraint the secondButton button
         constraintSet.connect(secondButton.getId(), ConstraintSet.TOP, heading.getId(), ConstraintSet.BOTTOM);
-        constraintSet.connect(secondButton.getId(), ConstraintSet.START, firstButton.getId(), ConstraintSet.END);
+        constraintSet.connect(secondButton.getId(), ConstraintSet.START, firstButton.getId(), ConstraintSet.END, 30);
         constraintSet.connect(secondButton.getId(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END);
         constraintSet.connect(secondButton.getId(), ConstraintSet.BOTTOM, fourthButton.getId(), ConstraintSet.TOP);
 
         //constraint the third button
-        constraintSet.connect(thirdButton.getId(), ConstraintSet.TOP, firstButton.getId(), ConstraintSet.BOTTOM);
-        constraintSet.connect(thirdButton.getId(), ConstraintSet.START, firstButton.getId(), ConstraintSet.START);
-        constraintSet.connect(thirdButton.getId(), ConstraintSet.END, fourthButton.getId(), ConstraintSet.START);
-        constraintSet.connect(thirdButton.getId(), ConstraintSet.BOTTOM, chosenText.getId(), ConstraintSet.TOP);
+        constraintSet.connect(thirdButton.getId(), ConstraintSet.TOP, firstButton.getId(), ConstraintSet.BOTTOM, 30);
+        constraintSet.connect(thirdButton.getId(), ConstraintSet.START, firstButton.getId(), ConstraintSet.START, 30);
+        constraintSet.connect(thirdButton.getId(), ConstraintSet.END, fourthButton.getId(), ConstraintSet.START, 30);
+        constraintSet.connect(thirdButton.getId(), ConstraintSet.BOTTOM, createYourOwnButton.getId(), ConstraintSet.TOP);
 
         //constraint the fourth button
-        constraintSet.connect(fourthButton.getId(), ConstraintSet.TOP, secondButton.getId(), ConstraintSet.BOTTOM);
+        constraintSet.connect(fourthButton.getId(), ConstraintSet.TOP, secondButton.getId(), ConstraintSet.BOTTOM, 30);
         constraintSet.connect(fourthButton.getId(), ConstraintSet.START, thirdButton.getId(), ConstraintSet.END);
-        constraintSet.connect(fourthButton.getId(), ConstraintSet.END, secondButton.getId(), ConstraintSet.END);
+        constraintSet.connect(fourthButton.getId(), ConstraintSet.END, secondButton.getId(), ConstraintSet.END, 30);
         constraintSet.connect(fourthButton.getId(), ConstraintSet.BOTTOM, thirdButton.getId(), ConstraintSet.BOTTOM);
 
+        //constraint the choose your own text prompt button
+        constraintSet.connect(createYourOwnButton.getId(), ConstraintSet.TOP, thirdButton.getId(), ConstraintSet.BOTTOM, 30);
+        constraintSet.connect(createYourOwnButton.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 30);
+        constraintSet.connect(createYourOwnButton.getId(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END, 30);
+        constraintSet.connect(createYourOwnButton.getId(), constraintSet.BOTTOM, sendText.getId(), ConstraintSet.TOP);
+
         //constraint the chosen text
-        constraintSet.connect(chosenText.getId(), ConstraintSet.TOP, thirdButton.getId(), ConstraintSet.BOTTOM, 50);
+/*        constraintSet.connect(chosenText.getId(), ConstraintSet.TOP, thirdButton.getId(), ConstraintSet.BOTTOM, 50);
         constraintSet.connect(chosenText.getId(), ConstraintSet.START, thirdButton.getId(), ConstraintSet.START, 50);
         constraintSet.connect(chosenText.getId(), ConstraintSet.END, fourthButton.getId(), ConstraintSet.END);
-        constraintSet.connect(chosenText.getId(), ConstraintSet.BOTTOM, sendText.getId(), ConstraintSet.TOP);
+        constraintSet.connect(chosenText.getId(), ConstraintSet.BOTTOM, sendText.getId(), ConstraintSet.TOP);*/
 
         //the send text button
-        constraintSet.connect(sendText.getId(), ConstraintSet.TOP, chosenText.getId(), ConstraintSet.BOTTOM);
+        constraintSet.connect(sendText.getId(), ConstraintSet.TOP, createYourOwnButton.getId(), ConstraintSet.BOTTOM, 30);
         constraintSet.connect(sendText.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START);
         constraintSet.connect(sendText.getId(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END);
         constraintSet.connect(sendText.getId(), ConstraintSet.BOTTOM, verifyCheckbox.getId(), ConstraintSet.TOP, 20);
@@ -306,11 +335,29 @@ public class SendTextActivity extends Activity implements ActivityCompat.OnReque
             //third button was clicked
 
             chosenText.setText(thirdButton.getText());
+            if(currentButtonClicked == THIRD_BUTTON){
+                thirdButton.setBackground(unselectedStatus);
+                currentButtonClicked = NONE;
+            }
+            else {
+                thirdButton.setBackground(selectedStatus);
+                resetOtherButton(currentButtonClicked, unselectedStatus);
+                currentButtonClicked = THIRD_BUTTON;
+            }
             promptNumberSelected = 3;
         } else if (view.getId() == fourthButton.getId()) {
             //fourth button was clicked
 
             chosenText.setText(fourthButton.getText());
+            if(currentButtonClicked == FOURTH_BUTTON){
+                fourthButton.setBackground(unselectedStatus);
+                currentButtonClicked = NONE;
+            }
+            else {
+                fourthButton.setBackground(selectedStatus);
+                resetOtherButton(currentButtonClicked, unselectedStatus);
+                currentButtonClicked = FOURTH_BUTTON;
+            }
             promptNumberSelected = 4;
         }
     }
