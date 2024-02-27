@@ -15,6 +15,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.telephony.SmsManager;
 import android.util.Log;
@@ -45,6 +46,12 @@ public class SendTextActivity extends Activity implements ActivityCompat.OnReque
     private ArrayList<Client> selectedClients;
     private static final int SEND_SMS_PERMISSION = 100;
     private int promptNumberSelected = 0; //used to keep track of which prompt was selected
+    private final int NONE = 0;
+    private final int  FIRST_BUTTON = 1;
+    private final int SECOND_BUTTON = 2;
+    private final int THIRD_BUTTON = 3;
+    private final int FOURTH_BUTTON = 4;
+    private int currentButtonClicked = NONE; //will tell me which button is currently clicked
 
 
     @Override
@@ -115,11 +122,18 @@ public class SendTextActivity extends Activity implements ActivityCompat.OnReque
         constraintSet.constrainHeight(heading.getId(), ConstraintSet.WRAP_CONTENT);
         constraintSet.constrainWidth(heading.getId(), ConstraintSet.MATCH_CONSTRAINT);
 
+        //test the new button's backgrounds, drawables
+        Drawable defaultbutton = ContextCompat.getDrawable(getApplicationContext(), R.drawable.prompt_button_default);
+
         //create the buttons that will have the prompts
         firstButton = new Button(this);
         secondButton = new Button(this);
         thirdButton = new Button(this);
         fourthButton = new Button(this);
+
+        //setting the drawable background of the buttons
+        firstButton.setBackground(defaultbutton);
+        secondButton.setBackground(defaultbutton);
 
         //set the ID's of the buttons
         firstButton.setId(View.generateViewId());
@@ -192,7 +206,7 @@ public class SendTextActivity extends Activity implements ActivityCompat.OnReque
         //constraint the firstButton button
         constraintSet.connect(firstButton.getId(), ConstraintSet.TOP, heading.getId(), ConstraintSet.BOTTOM);
         constraintSet.connect(firstButton.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START);
-        constraintSet.connect(firstButton.getId(), ConstraintSet.END, secondButton.getId(), ConstraintSet.START);
+        constraintSet.connect(firstButton.getId(), ConstraintSet.END, secondButton.getId(), ConstraintSet.START, 30);
         constraintSet.connect(firstButton.getId(), ConstraintSet.BOTTOM, thirdButton.getId(), ConstraintSet.TOP);
 
         //constraint the secondButton button
@@ -245,19 +259,84 @@ public class SendTextActivity extends Activity implements ActivityCompat.OnReque
         //selected prompt is the one sent. Once send button is clicked.
         promptSelected = true;
 
+        /*
+        Testing new idea. Instead of changing the chosenText just highlight the button the user clicked. Try to do this
+        like i did it in the welcomeActivity of the Deuce 1 game. There i did it by using drawables.
+         */
+        Drawable selectedStatus = ContextCompat.getDrawable(getApplicationContext(), R.drawable.prompt_button_selected);
+        Drawable unselectedStatus = ContextCompat.getDrawable(getApplicationContext(), R.drawable.prompt_button_default);
+
         //check which one was selected
         if(view.getId() == firstButton.getId()){
             chosenText.setText(firstButton.getText());
+
+            /*
+            currentButtonClicked keeps track of which button was last selected. This if checks if the last selected
+            button was firstButton, and if the user wishes to unselect it they have to click it again. This is
+            where we check if the user is clicking the button that is currently selected again therefore wanting
+            to unselect it. We then set the currentButtonClicked to None therefore unselecting it or to Firstbutton.
+             */
+            if(currentButtonClicked == FIRST_BUTTON){
+                firstButton.setBackground(unselectedStatus);
+                currentButtonClicked = NONE;
+                Log.d("TESTING", "textPromptClick: first if chosen");
+            }
+            else {
+                firstButton.setBackground(selectedStatus);
+                resetOtherButton(currentButtonClicked, unselectedStatus);
+                currentButtonClicked = FIRST_BUTTON;
+            }
             promptNumberSelected = 1;
+
         } else if (view.getId() == secondButton.getId()) {
+            //second button was clicked
+
             chosenText.setText(secondButton.getText());
+            if(currentButtonClicked == SECOND_BUTTON){
+                secondButton.setBackground(unselectedStatus);
+                currentButtonClicked = NONE;
+            }
+            else {
+                secondButton.setBackground(selectedStatus);
+                resetOtherButton(currentButtonClicked, unselectedStatus);
+                currentButtonClicked = SECOND_BUTTON;
+            }
             promptNumberSelected = 2;
         } else if (view.getId() == thirdButton.getId()) {
+            //third button was clicked
+
             chosenText.setText(thirdButton.getText());
             promptNumberSelected = 3;
         } else if (view.getId() == fourthButton.getId()) {
+            //fourth button was clicked
+
             chosenText.setText(fourthButton.getText());
             promptNumberSelected = 4;
+        }
+    }
+
+    private void resetOtherButton (int thisButton, Drawable toThisDrawable){
+        Log.d("TESTING", "resetOtherButton: " + thisButton);
+        switch (thisButton){
+            case FIRST_BUTTON:
+                firstButton.setBackground(toThisDrawable);
+                break;
+
+            case SECOND_BUTTON:
+                secondButton.setBackground(toThisDrawable);
+                break;
+
+            case THIRD_BUTTON:
+                thirdButton.setBackground(toThisDrawable);
+                break;
+
+            case FOURTH_BUTTON:
+                fourthButton.setBackground(toThisDrawable);
+                break;
+
+            default:
+                Log.d("TESTING", "resetOtherButton: NONE");
+                break;
         }
     }
 
